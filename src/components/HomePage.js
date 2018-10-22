@@ -7,7 +7,7 @@ class HomePage extends Component {
         <div className="page-header">
           <div className="row">
             <div className="col-xs-10">
-              <h1>Welcome to my Site!</h1>
+              <h1>Welcome to My Site!</h1>
               <p>I'll update and expand it as I have time...</p>
             </div>
           </div>
