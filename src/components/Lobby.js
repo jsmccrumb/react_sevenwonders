@@ -1,15 +1,26 @@
 import React, { Component } from 'react';
 
 class Login extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      showValidation: false
+    };
+    this.inputRef = React.createRef();
+
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
   render() {
     return (
-      <form onSubmit={this.props.setName} className={this.props.showValidation ? "was-validated" : ""}>
+      <form onSubmit={this.onSubmit} className={this.state.showValidation ? "was-validated" : ""}>
         <div className="form-group">
           <div className="input-group mb-4">
             <div className="input-group-prepend">
               <span className="input-group-text bg-secondary text-white">Name:</span>
             </div>
-            <input type="text" name="name" className="form-control" required />
+            <input ref={this.inputRef} type="text" name="name" className="form-control" required />
             <div className="input-group-append">
               <button type="sumbit" className="btn btn-primary">Submit</button>
             </div>
@@ -18,21 +29,131 @@ class Login extends Component {
       </form>
     );
   }
+
+  componentDidMount() {
+    if (this.props.hasFocus) {
+      this.inputRef.current.focus();
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.props.hasFocus) {
+      this.inputRef.current.focus();
+    }
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    this.setState({showValidation: true});
+    if (e.target.checkValidity()) {
+      let data = new FormData(e.target);
+      this.props.login(data.get('name'));
+    } else {
+      return;
+    }
+  }
 }
 
-class Lobby extends Component {
+class CreateGame extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      name: null,
-      gameName: null,
-      maxPlayers: 3
+      showValidation: false
     };
+    this.inputRef = React.createRef();
 
-    this.setName = this.setName.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
+  render() {
+    return (
+      <div className="col">
+        <div className="card">
+          <div className="card-header">Start a Game</div>
+          <div className="card-body">
+            <form onSubmit={this.onSubmit} className={this.state.showValidation ? "was-validated" : ""}>
+              <div className="input-group mb-4">
+                <div className="input-group-prepend">
+                  <span className="input-group-text">Game Name:</span>
+                </div>
+                <input ref={this.inputRef} type="text" name="name" className="form-control" required />
+              </div>
+              <small className="form-text text-danger d-none js-game-form-help">Game name is required</small>
+              <div className="input-group mb-4">
+                <div className="input-group-prepend">
+                  <span className="input-group-text">Players:</span>
+                </div>
+                <input id="players-input" type="number" name="players" min="3" max="7" required className="form-control" />
+              </div>
+              <small className="form-text text-danger d-none js-game-form-help">Players must be between 3 and 7</small>
+              <button type="submit" className="btn btn-primary">Start Game</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  componentDidMount() {
+    if (this.props.hasFocus) {
+      this.inputRef.current.focus();
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.props.hasFocus) {
+      this.inputRef.current.focus();
+    }
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    this.setState({showValidation: true});
+    if (e.target.checkValidity()) {
+      let data = new FormData(e.target);
+      this.props.sendMessage({
+        name: data.get('name'),
+        maxPlayers: data.get('players'),
+        messageType: 'newGame'
+      });
+    } else {
+      return;
+    }
+  }
+}
+
+class OpenGame extends Component {
+  constructor(props) {
+    super(props);
+    this.onClick = this.onClick.bind(this);
+  }
+
+  render() {
+    return (
+      <button className="list-group-item list-group-item-action" onClick={this.onClick}>
+        {this.props.name} - {this.props.creatorName} ({this.props.maxPlayers})
+      </button>
+    );
+  }
+
+  onClick(e) {
+    this.props.sendMessage({
+      messageType: 'joinGame',
+      id: this.props.id
+    });
+  }
+}
+
+class OpenGames extends Component {
+  render() {
+    let sendMessage = this.props.sendMessage;
+    const gamesList = this.props.games.map(g => <OpenGame {...g} sendMessage={sendMessage} key={g.id} />);
+    return <div className="list-group">{gamesList}</div>;
+  }
+}
+
+class Lobby extends Component {
   render() {
     return (
       <div>
@@ -42,36 +163,16 @@ class Lobby extends Component {
             <p>Created by Antoine Bauza, published by Repos Productions</p>
           </div>
           <hr className="my-4" />
-          <Login showValidation={this.state.nameSubmitted} setName={this.setName} />
+          <Login login={this.props.login} hasFocus={!this.props.name} />
         </div>
-        <div className="container d-none js-games-container">
+        <div className={this.props.name ? "container" : "container d-none"}>
           <div className="row">
-            <div className="col">
-              <div className="card">
-                <div className="card-header">Start a Game</div>
-                <div className="card-body js-start-game-form">
-                  <div className="input-group mb-4">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text">Game Name:</span>
-                    </div>
-                    <input id="game-input" type="text" name="gameName" className="form-control" />
-                  </div>
-                  <small className="form-text text-danger d-none js-game-form-help">Game name is required</small>
-                  <div className="input-group mb-4">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text">Players:</span>
-                    </div>
-                    <input id="players-input" type="number" name="players" min="3" max="7" className="form-control" />
-                  </div>
-                  <small className="form-text text-danger d-none js-game-form-help">Players must be between 3 and 7</small>
-                  <span className="btn btn-primary js-start-game">Start Game</span>
-                </div>
-              </div>
-            </div>
+            <CreateGame sendMessage={this.props.sendMessage} hasFocus={this.props.name != null} />
             <div className="col">
               <div className="card">
                 <div className="card-header">Open Games</div>
-                <div className="card-body" id="open-games-region">
+                <div className="card-body">
+                  <OpenGames games={this.props.games} sendMessage={this.props.sendMessage} />
                 </div>
               </div>
             </div>
@@ -79,17 +180,6 @@ class Lobby extends Component {
         </div>
       </div>
     );
-  }
-
-  setName(e) {
-    e.preventDefault();
-    this.setState({nameSubmitted: true});
-    if (e.target.checkValidity()) {
-      let data = new FormData(e.target);
-      this.props.login(data.get('name'));
-    } else {
-      return;
-    }
   }
 }
 

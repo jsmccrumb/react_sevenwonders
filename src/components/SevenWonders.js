@@ -35,7 +35,7 @@ class SevenWonders extends Component {
 
   // TODO -- do I need to remove onopen listener?
   getSocket(data) {
-    let host = `ws${window.location.protocol === "https:" ? "s" : ""}://${window.location.host}/node/seven_wonders`;
+    let host = `ws${window.location.protocol === "https:" ? "s" : ""}://${window.location.hostname}/node/seven_wonders`;
     let ws = this.createSocket(host);
     let onOpen = () => {
       ws.send(JSON.stringify(Object.assign(data, {messageType: 'login'})));
@@ -51,6 +51,7 @@ class SevenWonders extends Component {
   }
 
   sendMessage(data) {
+    console.log('send', data);
     if (this.state.ws && this.state.ws.readyState === 1) {
       this.state.ws.send(JSON.stringify(data));
     }
@@ -58,14 +59,15 @@ class SevenWonders extends Component {
 
   login(name) {
     let id = localStorage.getItem(`_swID_${name}`) || '';
-    this.setState({name});
+    this.setState({name, games: []});
     this.getSocket({name, id});
   }
 
   //handle messages from server
   handleMessage(msg) {
     try {
-      let parsed = JSON.parse(msg);
+      let parsed = JSON.parse(msg.data);
+      console.log('msg received', parsed);
       switch (parsed.messageType) {
         case 'myInfo':
           this.setMyInfo(parsed);
