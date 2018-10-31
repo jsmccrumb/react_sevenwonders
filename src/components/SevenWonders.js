@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import Lobby from './Lobby';
+import Waiting from './Waiting';
+import GameBoard from './GameBoard';
 
 class SevenWonders extends Component {
   constructor(props) {
@@ -7,7 +9,8 @@ class SevenWonders extends Component {
     this.state = {
       ws: null,
       status: 'pregame',
-      games: []
+      games: [],
+      currentGame: {}
     };
 
     this.handleMessage = this.handleMessage.bind(this);
@@ -20,9 +23,9 @@ class SevenWonders extends Component {
     let page;
     
     if (this.state.status === 'playing') {
-      page = <Lobby />;
+      page = <GameBoard {...this.state.currentGame} />;
     } else if (this.state.status === 'waiting') {
-      page = <Lobby />;
+      page = <Waiting {...this.state.currentGame} />;
     } else {
       page = (
         <Lobby login={this.login} sendMessage={this.sendMessage} games={this.state.games}
@@ -78,6 +81,12 @@ class SevenWonders extends Component {
         case 'joinGame':
           this.joinGame(parsed);
           break;
+        case 'newPlayer':
+          this.newPlayer(parsed);
+          break;
+        case 'wonderOption':
+          this.wonderOption(parsed);
+          break;
         default:
           console.log('Unrecognized message type', parsed);
           break;
@@ -97,6 +106,15 @@ class SevenWonders extends Component {
   }
 
   joinGame(data) {
+    this.setState({currentGame: data, status: 'waiting'});
+  }
+
+  newPlayer(data) {
+    this.setState((state, props) => state.currentGame.players.push(data));
+  }
+
+  wonderOption(data) {
+    this.setState({currentGame: data, status: 'playing'});
   }
 
 }
