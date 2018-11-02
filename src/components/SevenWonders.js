@@ -16,6 +16,7 @@ class SevenWonders extends Component {
     this.handleMessage = this.handleMessage.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.login = this.login.bind(this);
+    this.chooseSide = this.chooseSide.bind(this);
   }
 
   // TODO -- pass ws around or keep everything in state here and pass functions?
@@ -26,6 +27,8 @@ class SevenWonders extends Component {
       page = <GameBoard {...this.state.currentGame} />;
     } else if (this.state.status === 'waiting') {
       page = <Waiting {...this.state.currentGame} />;
+    } else if (this.state.status === 'choosing') {
+      page = <GameBoard {...this.state.wonderOption} chooseSide={this.chooseSide} />
     } else {
       page = (
         <Lobby login={this.login} sendMessage={this.sendMessage} games={this.state.games}
@@ -64,6 +67,10 @@ class SevenWonders extends Component {
     let id = localStorage.getItem(`_swID_${name}`) || '';
     this.setState({name, games: []});
     this.getSocket({name, id});
+  }
+
+  chooseSide(data) {
+    this.sendMessage({messageType: 'wonderSide', ...data});
   }
 
   //handle messages from server
@@ -114,7 +121,7 @@ class SevenWonders extends Component {
   }
 
   wonderOption(data) {
-    this.setState({currentGame: data, status: 'playing'});
+    this.setState({wonderOption: data.wonderOption, status: 'choosing'});
   }
 
 }
