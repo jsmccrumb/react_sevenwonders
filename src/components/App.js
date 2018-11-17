@@ -17,6 +17,7 @@ class App extends Component {
     this.sendMessage = this.sendMessage.bind(this);
     this.login = this.login.bind(this);
     this.chooseSide = this.chooseSide.bind(this);
+    this.selectCard = this.selectCard.bind(this);
 
     // TODO -- remove debugging
     window.swReact = this;
@@ -34,6 +35,8 @@ class App extends Component {
           direction={this.state.direction}
           wonder={this.state.wonder}
           hand={this.state.hand}
+          selectedCard={this.state.selectedCard}
+          selectCard={this.selectCard}
           id={this.state.id} />
       );
     } else if (this.state.status === 'waiting') {
@@ -80,6 +83,10 @@ class App extends Component {
 
   chooseSide(data) {
     this.sendMessage({messageType: 'wonderSide', ...data});
+  }
+
+  selectCard(card) {
+    this.setState({selectedCard: card});
   }
 
   //handle messages from server

@@ -7,12 +7,12 @@ import Card from './Card';
 // TODO move this to it's own file
 class Alert extends Component {
   render() {
-    return (
+    return this.props.message ? (
       <div className="alert alert-dismissable alert-info">
         <button type="button" className="close" data-dismiss="alert">&times;</button>
         {this.props.message}
       </div>
-    );
+    ) : null;
   }
 }
 
@@ -59,30 +59,38 @@ class GameBoard extends Component {
           <WonderSide {...this.props.wonder} />
         </>
       );
-      message = <Alert message="Waiting for other players to choose" />;
+      if (this.props.hand == null) {
+        message = "Waiting for other players to choose";
+      }
     } else if (this.props.wonderSides != null) {
       wonder = (
         <>
           {this.props.wonderSides.sort((a, b) => a.side < b.side ? -1 : a.side > b.side ? 1 : 0).map(s => <WonderOption key={s.side} chooseSide={this.props.chooseSide} wonderName={this.props.wonderName} {...s} />) }
         </>
       );
-      message = <Alert message="Pick which side of your Wonder board you would like to use!" />
+      message = "Pick which side of your Wonder board you would like to use!";
     }
     if (this.props.hand != null) {
       hand = (
         <>
           {this.props.hand.map((card, i) => {
-            return <Card key={card.name + card.players} {...card} offset={2 * i}/>
+            let isSelected = this.props.selectedCard &&
+                this.props.selectedCard.name === card.name &&
+                this.props.selectedCard.players === card.players;
+            return <Card key={card.name + card.players} {...card} isSelected={isSelected} offset={2 * i} selectCard={this.props.selectCard} />
           })}
         </>
       );
+    }
+    if (this.props.selectedCard != null) {
+
     }
     return (
       <div className="container-fluid">
         <PlayersSummary playOrder={this.props.playOrder}
             direction={this.props.direction} />
         <div className="row">
-          {message}
+          <Alert message={message} />
         </div>
         <div className="row d-flex justify-content-between">
           <div id="hand" className="flex-grow-1 d-overlap-grid">

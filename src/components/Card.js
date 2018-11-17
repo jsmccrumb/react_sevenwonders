@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
 class Card extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onClick = this.onClick.bind(this);
+  }
+
   render() {
     let cardClass = `card bg-secondary wonder-card${this.props.isSelected ? ' selected' : ''}`;
     let style = {transform: `translateX(-${this.props.offset}em)`};
     console.info(style)
     return (
-      <div className={cardClass} style={style}>
+      <div className={cardClass} style={style} onClick={this.onClick}>
         <div className="card-header">{this.props.name}</div>
         <div className="card-body">
           <ul className="list-group list-group-flush">
@@ -25,6 +31,10 @@ class Card extends Component {
         </div>
       </div>
     );
+  }
+
+  onClick(e) {
+    this.props.selectCard({name: this.props.name, players: this.props.players});
   }
 }
 
