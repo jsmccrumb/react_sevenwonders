@@ -16,7 +16,7 @@ class WonderOption extends Component {
   }
 
   onClick(e) {
-    this.props.chooseSide({wonderName: this.props.name, side: this.props.side});
+    this.props.chooseSide({wonderName: this.props.wonderName, side: this.props.side});
   }
 }
 

@@ -7,7 +7,7 @@ class WonderSide extends Component {
     return (
       <div className="card bg-light">
         <div className="card-header">
-          <h1><span className="badge badge-pill badge-primary">{this.props.resource}</span>{this.props.name} {this.props.side}</h1>
+          <h1><span className="badge badge-pill badge-primary">{this.props.resource}</span>{this.props.wonderName} {this.props.side}</h1>
         </div>
         <div className="card-body pb-0">
           <div className="row justify-content-between align-items-end">
