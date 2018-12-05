@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactGA from 'react-ga';
 import Lobby from './Lobby';
 import Waiting from './Waiting';
 import GameBoard from './GameBoard';
@@ -35,7 +36,6 @@ class App extends Component {
           direction={this.state.direction}
           wonder={this.state.wonder}
           hand={this.state.hand}
-          selectedCard={this.state.selectedCard}
           selectCard={this.selectCard}
           id={this.state.id} />
       );
@@ -53,8 +53,10 @@ class App extends Component {
 
   // TODO -- do I need to remove onopen listener?
   getSocket(data) {
-    let host = `ws${window.location.protocol === "https:" ? "s" : ""}://${window.location.hostname}/node/seven_wonders`;
-    let ws = this.createSocket(host);
+    let protocol = `ws${window.location.protocol === "https:" ? "s" : ""}`;
+    // in dev, don't keep 3000
+    let host = window.location.port === '3000' ? window.location.hostname : window.location.host;
+    let ws = this.createSocket(`${protocol}:${host}/node/seven_wonders`);
     let onOpen = () => {
       ws.send(JSON.stringify(Object.assign(data, {messageType: 'login'})));
     }
@@ -77,6 +79,7 @@ class App extends Component {
 
   login(name) {
     let id = localStorage.getItem(`_swID_${name}`) || '';
+    ReactGA.event({category: 'User', action: 'login', label: name});
     this.setState({name, games: []});
     this.getSocket({name, id});
   }
@@ -86,7 +89,23 @@ class App extends Component {
   }
 
   selectCard(card) {
-    this.setState({selectedCard: card});
+    this.setState((state, props) => {
+      let oldCard = state.hand.filter(c => {
+        return c.name === card.name && c.players === card.players;
+      })[0];
+      if (oldCard != null) {
+        let oldIndex = state.hand.indexOf(oldCard);
+        let newCard = {...oldCard};
+        let newHand = [
+          ...state.hand.slice(0, oldIndex),
+          newCard,
+          ...state.hand.slice(oldIndex + 1)
+        ];
+        newHand.filter(c => c.isSelected).forEach(c => c.isSelected = false);
+        newCard.isSelected = true;
+        return {hand: newHand};
+      }
+    });
   }
 
   //handle messages from server
@@ -141,6 +160,7 @@ class App extends Component {
   }
 
   joinGame(data) {
+    ReactGA.event({category: 'User', action: 'joinGame', label: data.name});
     this.setState({currentGame: data, status: 'waiting'});
   }
 
@@ -197,5 +217,8 @@ class App extends Component {
   }
 
 }
+
+ReactGA.initialize('UA-129906299-1');
+ReactGA.pageview('/homepage');
 
 export default App;

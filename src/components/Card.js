@@ -9,7 +9,6 @@ class Card extends Component {
   render() {
     let cardClass = `card bg-secondary wonder-card${this.props.isSelected ? ' selected' : ''}`;
     let style = {transform: `translateX(-${this.props.offset}em)`};
-    console.info(style)
     return (
       <div className={cardClass} style={style} onClick={this.onClick}>
         <div className="card-header">{this.props.name}</div>

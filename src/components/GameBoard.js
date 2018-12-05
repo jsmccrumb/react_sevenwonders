@@ -71,19 +71,20 @@ class GameBoard extends Component {
       message = "Pick which side of your Wonder board you would like to use!";
     }
     if (this.props.hand != null) {
+      let selectedCard = this.props.hand.filter(c => c.isSelected)[0];
       hand = (
         <>
           {this.props.hand.map((card, i) => {
-            let isSelected = this.props.selectedCard &&
-                this.props.selectedCard.name === card.name &&
-                this.props.selectedCard.players === card.players;
-            return <Card key={card.name + card.players} {...card} isSelected={isSelected} offset={2 * i} selectCard={this.props.selectCard} />
+            return (
+              <Card key={card.name + card.players} {...card} offset={2 * i}
+                  selectCard={this.props.selectCard} />
+            );
           })}
         </>
       );
-    }
-    if (this.props.selectedCard != null) {
-
+      if (selectedCard != null) {
+        // TODO set card options based on selected card
+      }
     }
     return (
       <div className="container-fluid">
