@@ -56,7 +56,7 @@ class App extends Component {
     let protocol = `ws${window.location.protocol === "https:" ? "s" : ""}`;
     // in dev, don't keep 3000
     let host = window.location.port === '3000' ? window.location.hostname : window.location.host;
-    let ws = this.createSocket(`${protocol}:${host}/node/seven_wonders`);
+    let ws = this.createSocket(`${protocol}:${host}/${window.location.port === '3000' ? 'dev_' : ''}node/seven_wonders`);
     let onOpen = () => {
       ws.send(JSON.stringify(Object.assign(data, {messageType: 'login'})));
     }
